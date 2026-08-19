@@ -7,20 +7,6 @@ struct Tweak {
         CanPayHook().hook()
         DelegateHook().hook()
         TransactionHook().hook()
-        
-        if Preferences.isPriceZero { ProductHook().hook() }
-        if Preferences.isObserver { ObserverHook().hook() }
-        if Preferences.isStealth { DyldHook().hook() }
-        
-        if Preferences.isReceipt {
-            ReceiptHook().hook()
-            URLHook().hook()
-        }
-        
-        if #available(iOS 15, *) {
-            if Preferences.isGesture {
-                WindowHook().hook()
-            }
             
             guard !Preferences.isHidden else {
                 return
@@ -48,7 +34,8 @@ struct Tweak {
                 return
             }
             
-            let controller = SatellaController.shared
+            // AsasecController kullanılarak menü ekleniyor
+            let controller = AsasecController.shared
             if controller.parent == nil {
                 rootVC.add(controller)
             }
