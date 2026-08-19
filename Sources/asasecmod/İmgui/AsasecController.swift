@@ -1,0 +1,165 @@
+import UIKit
+
+// UIViewController uzantısı (rootViewController'a alt view eklemek için)
+extension UIViewController {
+    func add(_ child: UIViewController) {
+        addChild(child)
+        view.addSubview(child.view)
+        child.didMove(toParent: self)
+    }
+}
+
+// Menüyü ve UIKit bileşenlerini yöneten ana Controller (AsasecController)
+public class AsasecController: UIViewController {
+    public static let shared = AsasecController()
+    
+    private var nativeMenu: UIView?
+    
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.backgroundColor = .clear
+        
+        let screenBounds = UIScreen.main.bounds
+        let menuView = NativeMenuViewWrapper(frame: screenBounds)
+        self.view.addSubview(menuView)
+        self.nativeMenu = menuView
+    }
+}
+
+// Swift içerisinden Objective-C menü yapısını yönetmek için sarmalayıcı (Wrapper)
+class NativeMenuViewWrapper: UIView {
+    private var mobileMenuWindow: UIView!
+    private var floatingIcon: UIButton!
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .clear
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        // --- Ana Menü Penceresi ---
+        mobileMenuWindow = UIView(frame: CGRect(x: 50, y: 80, width: 270, height: 200))
+        mobileMenuWindow.backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 0.97)
+        mobileMenuWindow.layer.cornerRadius = 16.0
+        mobileMenuWindow.layer.borderWidth = 1.5
+        mobileMenuWindow.layer.borderColor = UIColor(red: 0.30, green: 0.60, blue: 1.00, alpha: 1.0).cgColor
+        mobileMenuWindow.layer.shadowColor = UIColor.black.cgColor
+        mobileMenuWindow.layer.shadowOffset = CGSize(width: 0, height: 8)
+        mobileMenuWindow.layer.shadowOpacity = 0.5
+        mobileMenuWindow.layer.shadowRadius = 10.0
+        mobileMenuWindow.clipsToBounds = false
+        mobileMenuWindow.isHidden = true
+        addSubview(mobileMenuWindow)
+        
+        let menuPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        mobileMenuWindow.addGestureRecognizer(menuPan)
+        
+        // --- Başlık Çubuğu ---
+        let titleBar = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 40))
+        titleBar.backgroundColor = UIColor(red: 0.14, green: 0.17, blue: 0.22, alpha: 1.0)
+        
+        let maskPath = UIBezierPath(roundedRect: titleBar.bounds, byRoundingCorners: [.topLeft, .topRight], cornerRadii: CGSize(width: 16.0, height: 16.0))
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = maskPath.cgPath
+        titleBar.layer.mask = maskLayer
+        mobileMenuWindow.addSubview(titleBar)
+        
+        let titleLabel = UILabel(frame: CGRect(x: 16, y: 0, width: 200, height: 40))
+        titleLabel.text = "⭐ @asasec IL2CPP Dumper"
+        titleLabel.textColor = .white
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
+        titleBar.addSubview(titleLabel)
+        
+        // Sağ Üst X Butonu (Küçültme / Minimize)
+        let closeBtn = UIButton(type: .system)
+        closeBtn.frame = CGRect(x: 230, y: 8, width: 24, height: 24)
+        closeBtn.setTitle("✕", for: .normal)
+        closeBtn.setTitleColor(UIColor(red: 1.0, green: 0.35, blue: 0.35, alpha: 1.0), for: .normal)
+        closeBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
+        closeBtn.addTarget(self, action: #selector(minimizeMenu), for: .touchUpInside)
+        titleBar.addSubview(closeBtn)
+        
+        // --- Butonlar ---
+        let dumpButton = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "▶ Full Dump", color: UIColor(red: 0.20, green: 0.60, blue: 1.00, alpha: 1.0))
+        dumpButton.addTarget(self, action: #selector(dumpButtonTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(dumpButton)
+        
+        let stringDumpButton = createButton(frame: CGRect(x: 18, y: 86, width: 234, height: 32), title: "🔍 String Dump", color: UIColor(red: 0.80, green: 0.40, blue: 0.10, alpha: 1.0))
+        stringDumpButton.addTarget(self, action: #selector(stringDumpButtonTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(stringDumpButton)
+        
+        let assemblyViewerButton = createButton(frame: CGRect(x: 18, y: 124, width: 234, height: 32), title: "⚙️ Hex & Assembly Viewer", color: UIColor(red: 0.30, green: 0.50, blue: 0.30, alpha: 1.0))
+        assemblyViewerButton.addTarget(self, action: #selector(assemblyViewerButtonTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(assemblyViewerButton)
+        
+        let quickPatchButton = createButton(frame: CGRect(x: 18, y: 162, width: 234, height: 32), title: "💡 Mod Info & Status", color: UIColor(red: 0.50, green: 0.20, blue: 0.60, alpha: 1.0))
+        quickPatchButton.addTarget(self, action: #selector(quickPatchButtonTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(quickPatchButton)
+        
+        // --- Yüzen Simge (Floating Icon) ---
+        floatingIcon = UIButton(type: .system)
+        floatingIcon.frame = CGRect(x: 40, y: 100, width: 54, height: 54)
+        floatingIcon.backgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.13, alpha: 0.92)
+        floatingIcon.setTitle("📦", for: .normal)
+        floatingIcon.titleLabel?.font = UIFont.systemFont(ofSize: 28)
+        floatingIcon.layer.cornerRadius = 27.0
+        floatingIcon.layer.borderWidth = 2.0
+        floatingIcon.layer.borderColor = UIColor(red: 0.30, green: 0.60, blue: 1.00, alpha: 1.0).cgColor
+        floatingIcon.layer.shadowColor = UIColor.black.cgColor
+        floatingIcon.layer.shadowOffset = CGSize(width: 0, height: 4)
+        floatingIcon.layer.shadowOpacity = 0.6
+        floatingIcon.layer.shadowRadius = 8.0
+        floatingIcon.isHidden = false
+        floatingIcon.addTarget(self, action: #selector(restoreMenu), for: .touchUpInside)
+        addSubview(floatingIcon)
+        
+        let iconPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        floatingIcon.addGestureRecognizer(iconPan)
+    }
+    
+    private func createButton(frame: CGRect, title: String, color: UIColor) -> UIButton {
+        let btn = UIButton(type: .system)
+        btn.frame = frame
+        btn.backgroundColor = color
+        btn.setTitle(title, for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+        btn.layer.cornerRadius = 6.0
+        return btn
+    }
+    
+    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hitView = super.hitTest(point, with: event)
+        if hitView == self { return nil }
+        return hitView
+    }
+    
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let view = gesture.view else { return }
+        let translation = gesture.translation(in: self)
+        view.center = CGPoint(x: view.center.x + translation.x, y: view.center.y + translation.y)
+        gesture.setTranslation(.zero, in: self)
+    }
+    
+    @objc private func minimizeMenu() {
+        mobileMenuWindow.isHidden = true
+        floatingIcon.center = mobileMenuWindow.center
+        floatingIcon.isHidden = false
+    }
+    
+    @objc private func restoreMenu() {
+        floatingIcon.isHidden = true
+        mobileMenuWindow.center = floatingIcon.center
+        mobileMenuWindow.isHidden = false
+    }
+    
+    @objc private func dumpButtonTapped() { }
+    @objc private func stringDumpButtonTapped() { }
+    @objc private func assemblyViewerButtonTapped() { }
+    @objc private func quickPatchButtonTapped() { }
+}
