@@ -1,5 +1,29 @@
 import UIKit
 
+
+struct AlertHelper {
+    static func show(title: String, message: String) {
+        DispatchQueue.main.async {
+            // Aktif olan pencereyi ve ana ViewController'ı buluyoruz
+            guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
+                  let rootVC = window.rootViewController else {
+                return
+            }
+            
+            // Eğer rootVC üstünde başka bir pencere/modal açıksa en üsttekini bul
+            var topController = rootVC
+            while let presented = topController.presentedViewController {
+                topController = presented
+            }
+            
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: nil))
+            topController.present(alert, animated: true, completion: nil)
+        }
+    }
+}
+
+
 extension UIViewController {
     func add(_ child: UIViewController) {
         addChild(child)
@@ -65,7 +89,7 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.addSubview(titleBar)
         
         let titleLabel = UILabel(frame: CGRect(x: 16, y: 0, width: 200, height: 40))
-        titleLabel.text = "⭐ @asasec IL2CPP Dumper"
+        titleLabel.text = "⭐ @asasec Bedava Satın Alma"
         titleLabel.textColor = .white
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
@@ -78,21 +102,20 @@ class NativeMenuViewWrapper: UIView {
         closeBtn.addTarget(self, action: #selector(minimizeMenu), for: .touchUpInside)
         titleBar.addSubview(closeBtn)
         
-        let dumpButton = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "▶ Full Dump", color: UIColor(red: 0.20, green: 0.60, blue: 1.00, alpha: 1.0))
-        dumpButton.addTarget(self, action: #selector(dumpButtonTapped), for: .touchUpInside)
-        mobileMenuWindow.addSubview(dumpButton)
+        // 1. Buton ve Fonksiyon Eşleşmesi
+        let bypassiap = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "🔍 Bypass / Sorun Giderme", color: UIColor(red: 0.80, green: 0.40, blue: 0.10, alpha: 1.0))
+        bypassiap.addTarget(self, action: #selector(bypassiapTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(bypassiap)
         
-        let stringDumpButton = createButton(frame: CGRect(x: 18, y: 86, width: 234, height: 32), title: "🔍 String Dump", color: UIColor(red: 0.80, green: 0.40, blue: 0.10, alpha: 1.0))
-        stringDumpButton.addTarget(self, action: #selector(stringDumpButtonTapped), for: .touchUpInside)
-        mobileMenuWindow.addSubview(stringDumpButton)
-        
-        let assemblyViewerButton = createButton(frame: CGRect(x: 18, y: 124, width: 234, height: 32), title: "⚙️ Hex & Assembly Viewer", color: UIColor(red: 0.30, green: 0.50, blue: 0.30, alpha: 1.0))
-        assemblyViewerButton.addTarget(self, action: #selector(assemblyViewerButtonTapped), for: .touchUpInside)
-        mobileMenuWindow.addSubview(assemblyViewerButton)
-        
-        let quickPatchButton = createButton(frame: CGRect(x: 18, y: 162, width: 234, height: 32), title: "💡 Mod Info & Status", color: UIColor(red: 0.50, green: 0.20, blue: 0.60, alpha: 1.0))
-        quickPatchButton.addTarget(self, action: #selector(quickPatchButtonTapped), for: .touchUpInside)
-        mobileMenuWindow.addSubview(quickPatchButton)
+        // 2. Buton ve Fonksiyon Eşleşmesi
+        let bilgiverbize = createButton(frame: CGRect(x: 18, y: 86, width: 234, height: 32), title: "💡 Mod Hakkında & Bilgi", color: UIColor(red: 0.50, green: 0.20, blue: 0.60, alpha: 1.0))
+        bilgiverbize.addTarget(self, action: #selector(bilgiverbizeTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(bilgiverbize)
+
+        // 3. Buton ve Fonksiyon Eşleşmesi
+        let modugizle = createButton(frame: CGRect(x: 18, y: 124, width: 234, height: 32), title: "⚙️ Modu Gizle", color: UIColor(red: 0.30, green: 0.50, blue: 0.30, alpha: 1.0))
+        modugizle.addTarget(self, action: #selector(modugizleTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(modugizle)
         
         floatingIcon = UIButton(type: .system)
         floatingIcon.frame = CGRect(x: 40, y: 100, width: 54, height: 54)
@@ -150,8 +173,18 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.isHidden = false
     }
     
-    @objc private func dumpButtonTapped() { }
-    @objc private func stringDumpButtonTapped() { }
-    @objc private func assemblyViewerButtonTapped() { }
-    @objc private func quickPatchButtonTapped() { }
+    // Düzeltilen `@objc` fonksiyonları
+    @objc private func bypassiapTapped() { 
+        abort()
+    }
+    
+    @objc private func bilgiverbizeTapped() { 
+        AlertHelper.show(title: "BOMBOM", message: "Senin için bebeğim bu mod 👄")
+
+    }
+    
+    @objc private func modugizleTapped() { 
+        mobileMenuWindow.isHidden = true
+        floatingIcon.isHidden = false
+    }
 }
