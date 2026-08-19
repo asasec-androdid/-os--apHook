@@ -1,32 +1,30 @@
 import Jinx
 import UIKit
 
+@available(iOS 15.0, *)
 struct Tweak {
     static func ctor() {
         // Temel hook'lar bir kez çalıştırılır
         CanPayHook().hook()
         DelegateHook().hook()
         TransactionHook().hook()
-            
-            guard !Preferences.isHidden else {
-                return
-            }
-            
-            // İlk açılışta menüyü ekle
+        
+        // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
+        // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
+        
+        // İlk açılışta menüyü ekle
+        showMenu()
+        
+        // Oyundan çık-gir yapıldığında veya sahneler arası geçişte kaybolmayı önlemek için
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
             showMenu()
-            
-            // Oyundan çık-gir yapıldığında veya sahneler arası geçişte kaybolmayı önlemek için
-            NotificationCenter.default.addObserver(
-                forName: UIApplication.didBecomeActiveNotification,
-                object: nil,
-                queue: .main
-            ) { _ in
-                showMenu()
-            }
         }
     }
     
-    @available(iOS 15.0, *)
     private static func showMenu() {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
@@ -45,5 +43,7 @@ struct Tweak {
 
 @_cdecl("jinx_entry")
 func jinxEntry() {
-    Tweak.ctor()
+    if #available(iOS 15.0, *) {
+        Tweak.ctor()
+    }
 }
