@@ -3,11 +3,11 @@ ARCHS = arm64
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = SatellaJailed
+TWEAK_NAME = Asasecİap
 
 # Sources/SatellaJailed altındaki tüm Swift dosyaları ve load.s derlemeye dahil edildi
-SatellaJailed_FILES = $(wildcard Sources/SatellaJailed/*.swift) \
-                      $(wildcard Sources/SatellaJailed/**/*.swift) \
+Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
+                      $(wildcard Sources/asasecmod/**/*.swift) \
                       Sources/load.s
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
@@ -16,16 +16,16 @@ SPM_MODULE_DIR = $(shell find .build -name "Jinx.swiftmodule" 2>/dev/null | head
 # Jinx.build altında derlenen tüm nesne dosyalarını (.o) tek seferde topluyoruz
 JINX_OBJECTS = $(shell find .build -path "*/Jinx.build/*.o" 2>/dev/null)
 
-SatellaJailed_SWIFTFLAGS = \
+Asasecİap_SWIFTFLAGS = \
 	-swift-version 5 \
 	-I$(SPM_MODULE_DIR) \
 	-sdk $(SDK_PATH) \
 	-target arm64-apple-ios14.0
 
-SatellaJailed_CFLAGS = -fobjc-arc
+Asasecİap_CFLAGS = -fobjc-arc
 
 # Jinx nesne dosyalarını doğrudan bağlayıcıya (linker) aktarıyoruz
-SatellaJailed_LDFLAGS = $(JINX_OBJECTS)
+Asasecİap_LDFLAGS = $(JINX_OBJECTS)
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
