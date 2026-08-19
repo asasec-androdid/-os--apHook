@@ -1,0 +1,128 @@
+name: Build Swift Tweak
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Check Xcode and Swift
+        run: |
+          echo "===== Xcode ====="
+          xcode-select -p
+          xcodebuild -version
+
+          echo ""
+          echo "===== Swift ====="
+          xcrun swift --version
+
+          echo ""
+          echo "===== iPhoneOS SDK ====="
+
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          echo "SDK_PATH=$SDK_PATH"
+
+          if [ -z "$SDK_PATH" ]; then
+            echo "ERROR: iPhoneOS SDK path is empty."
+            exit 1
+          fi
+
+          if [ ! -d "$SDK_PATH" ]; then
+            echo "ERROR: iPhoneOS SDK does not exist."
+            exit 1
+          fi
+
+          echo ""
+          echo "===== UIKit ====="
+
+          if [ ! -d "$SDK_PATH/System/Library/Frameworks/UIKit.framework" ]; then
+            echo "ERROR: UIKit.framework not found."
+            exit 1
+          fi
+
+          echo "UIKit.framework found."
+
+          echo ""
+          echo "===== SDK Version ====="
+
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Install Dependencies
+        run: |
+          brew install ldid xz make
+
+      - name: Install Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+
+      - name: Set up Environment
+        run: |
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+          echo "$HOME/theos/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Theos
+        run: |
+          echo "THEOS=$THEOS"
+
+          if [ ! -f "$THEOS/makefiles/common.mk" ]; then
+            echo "ERROR: Theos was not installed correctly."
+            exit 1
+          fi
+
+          echo "Theos OK."
+
+      - name: Resolve Swift Packages
+        run: |
+          swift package resolve
+
+      - name: Build Swift Package for iOS
+        run: |
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          echo "========================================"
+          echo "Building Swift package"
+          echo "========================================"
+          echo "SDK: $SDK_PATH"
+          echo "Target: arm64-apple-ios14.0"
+          echo ""
+
+          swift build \
+            --sdk "$SDK_PATH" \
+            --triple arm64-apple-ios14.0
+
+      - name: Build Theos Package
+        run: |
+          echo "========================================"
+          echo "Building Theos package"
+          echo "========================================"
+
+          make package
+
+      - name: Show Package
+        run: |
+          echo "========================================"
+          echo "Generated packages"
+          echo "========================================"
+
+          ls -lah packages/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JinxSwiftTweak-deb
+          path: Tweak/packages/*.deb
+          if-no-files-found: error
