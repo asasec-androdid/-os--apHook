@@ -124,5 +124,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JinxSwiftTweak-deb
-          path: Tweak/packages/*.deb
+          path: packages/*.deb
           if-no-files-found: error
