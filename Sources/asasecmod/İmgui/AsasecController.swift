@@ -1,6 +1,5 @@
 import UIKit
 
-// UIViewController uzantısı (rootViewController'a alt view eklemek için)
 extension UIViewController {
     func add(_ child: UIViewController) {
         addChild(child)
@@ -9,7 +8,6 @@ extension UIViewController {
     }
 }
 
-// Menüyü ve UIKit bileşenlerini yöneten ana Controller (AsasecController)
 public class AsasecController: UIViewController {
     public static let shared = AsasecController()
     
@@ -26,7 +24,6 @@ public class AsasecController: UIViewController {
     }
 }
 
-// Swift içerisinden Objective-C menü yapısını yönetmek için sarmalayıcı (Wrapper)
 class NativeMenuViewWrapper: UIView {
     private var mobileMenuWindow: UIView!
     private var floatingIcon: UIButton!
@@ -42,7 +39,6 @@ class NativeMenuViewWrapper: UIView {
     }
     
     private func setupUI() {
-        // --- Ana Menü Penceresi ---
         mobileMenuWindow = UIView(frame: CGRect(x: 50, y: 80, width: 270, height: 200))
         mobileMenuWindow.backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 0.97)
         mobileMenuWindow.layer.cornerRadius = 16.0
@@ -59,7 +55,6 @@ class NativeMenuViewWrapper: UIView {
         let menuPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         mobileMenuWindow.addGestureRecognizer(menuPan)
         
-        // --- Başlık Çubuğu ---
         let titleBar = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 40))
         titleBar.backgroundColor = UIColor(red: 0.14, green: 0.17, blue: 0.22, alpha: 1.0)
         
@@ -75,7 +70,6 @@ class NativeMenuViewWrapper: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
-        // Sağ Üst X Butonu (Küçültme / Minimize)
         let closeBtn = UIButton(type: .system)
         closeBtn.frame = CGRect(x: 230, y: 8, width: 24, height: 24)
         closeBtn.setTitle("✕", for: .normal)
@@ -84,7 +78,6 @@ class NativeMenuViewWrapper: UIView {
         closeBtn.addTarget(self, action: #selector(minimizeMenu), for: .touchUpInside)
         titleBar.addSubview(closeBtn)
         
-        // --- Butonlar ---
         let dumpButton = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "▶ Full Dump", color: UIColor(red: 0.20, green: 0.60, blue: 1.00, alpha: 1.0))
         dumpButton.addTarget(self, action: #selector(dumpButtonTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(dumpButton)
@@ -101,7 +94,6 @@ class NativeMenuViewWrapper: UIView {
         quickPatchButton.addTarget(self, action: #selector(quickPatchButtonTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(quickPatchButton)
         
-        // --- Yüzen Simge (Floating Icon) ---
         floatingIcon = UIButton(type: .system)
         floatingIcon.frame = CGRect(x: 40, y: 100, width: 54, height: 54)
         floatingIcon.backgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.13, alpha: 0.92)
