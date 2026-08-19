@@ -35,7 +35,9 @@ let package: Package = .init(
             path: "Sources/asasecmod",
             sources: [
                 "Tweak.swift",
-                "Hooks"
+                "Hooks",
+                "İmgui",
+                "Helper"
             ],
             swiftSettings: [.unsafeFlags(swiftFlags)]
         )
