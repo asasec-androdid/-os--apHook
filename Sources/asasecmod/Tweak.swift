@@ -8,6 +8,7 @@ struct Tweak {
         CanPayHook().hook()
         DelegateHook().hook()
         TransactionHook().hook()
+        StoreIAPBypassManager.loadTweak()
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
