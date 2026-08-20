@@ -4,6 +4,10 @@ import UIKit
 @available(iOS 15.0, *)
 struct Tweak {
     static func ctor() {
+
+        CanPayHook().hook()
+        DelegateHook().hook()
+        TransactionHook().hook()
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
