@@ -11,7 +11,7 @@ struct StorePurchaseHook: HookFunc {
     let name: String = "PurchaseProduct"
     let image: String? = "Frameworks/UnityFramework.framework/UnityFramework"
     
-    var replace: T = { storeControllerSelf, productPtr, orig in
+    var replace: T = { storeControllerSelf, productPtr in
         // Satın al butonuna basıldığı an ekranda bu uyarı çıkacak
         AlertHelperq.show(
             title: "Başarılı!", 
