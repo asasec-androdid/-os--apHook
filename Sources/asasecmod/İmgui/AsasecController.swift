@@ -183,24 +183,22 @@ class NativeMenuViewWrapper: UIView {
     
     // Yeni eklenen Bedava Satın Alma butonunun aksiyonu
     @objc private func freePurchaseTapped() {
-        isFreePurchaseEnabled.toggle()
-        
-        if isFreePurchaseEnabled {
-            freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
-            freePurchaseButton.backgroundColor = UIColor.green
-            AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Açık")
-
-            //Hooklar
-            CanPayHook().hook()
-            DelegateHook().hook()
-            TransactionHook().hook()
-            
-        } else {
-            freePurchaseButton.setTitle("Bedava Satın Alma: Kapalı", for: .normal)
-            freePurchaseButton.backgroundColor = UIColor.red
-            AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Kapalı")
-        }
+    isFreePurchaseEnabled.toggle()
+    
+    // Durumu Preferences sınıfına aktarıyoruz
+    Preferences.isFreePurchaseEnabled = isFreePurchaseEnabled
+    
+    if isFreePurchaseEnabled {
+        freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
+        freePurchaseButton.backgroundColor = UIColor.green
+        AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Açık")
+    } else {
+        freePurchaseButton.setTitle("Bedava Satın Alma: Kapalı", for: .normal)
+        freePurchaseButton.backgroundColor = UIColor.red
+        AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Kapalı")
     }
+}
+
     
     @objc private func bypassiapTapped() { 
         abort()
