@@ -13,7 +13,7 @@ struct StorePurchaseHook: HookFunc {
     
     var replace: T = { storeControllerSelf, productPtr, orig in
         // Satın al butonuna basıldığı an ekranda bu uyarı çıkacak
-        AlertHelper.show(
+        AlertHelperq.show(
             title: "Başarılı!", 
             message: "PurchaseProduct tetiklendi ve hook yakalandı!"
         )
@@ -24,7 +24,7 @@ struct StorePurchaseHook: HookFunc {
 }
 
 // Ekran üstü uyarı yardımcısı
-struct AlertHelper {
+struct AlertHelperq {
     static func show(title: String, message: String) {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
@@ -49,7 +49,7 @@ struct AlertHelper {
         StorePurchaseHook().hook()
         
         // Tweak'in yüklendiğini anlamak için açılışta da alert çıkarabiliriz
-        AlertHelper.show(
+        AlertHelperq.show(
             title: "Tweak Yüklendi", 
             message: "StoreIAPBypassManager aktif edildi."
         )
