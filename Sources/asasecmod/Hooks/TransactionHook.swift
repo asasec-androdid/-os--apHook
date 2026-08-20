@@ -16,9 +16,38 @@ struct TransactionHook: HookGroup {
     let sel3: Selector = #selector(getter: SKPaymentTransaction.error)
     let sel4: Selector = #selector(getter: SKPaymentTransaction.transactionDate)
 
-    let replace0: T0 = { _, _ in .purchased }
-    let replace1: T1 = { _, _ in UUID().uuidString }
-    let replace2: T2 = { _, _ in UUID().uuidString }
-    let replace3: T3 = { _, _ in nil }
-    let replace4: T4 = { _, _ in Date() }
+    let replace0: T0 = { obj, sel in
+        if !Preferences.isFreePurchaseEnabled {
+            return orig(obj, sel)
+        }
+        return .purchased
+    }
+    
+    let replace1: T1 = { obj, sel in
+        if !Preferences.isFreePurchaseEnabled {
+            return orig(obj, sel)
+        }
+        return UUID().uuidString
+    }
+    
+    let replace2: T2 = { obj, sel in
+        if !Preferences.isFreePurchaseEnabled {
+            return orig(obj, sel)
+        }
+        return UUID().uuidString
+    }
+    
+    let replace3: T3 = { obj, sel in
+        if !Preferences.isFreePurchaseEnabled {
+            return orig(obj, sel)
+        }
+        return nil
+    }
+    
+    let replace4: T4 = { obj, sel in
+        if !Preferences.isFreePurchaseEnabled {
+            return orig(obj, sel)
+        }
+        return Date()
+    }
 }
