@@ -189,6 +189,12 @@ class NativeMenuViewWrapper: UIView {
             freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
             freePurchaseButton.backgroundColor = UIColor.green
             AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Açık")
+
+            //Hooklar
+            CanPayHook().hook()
+            DelegateHook().hook()
+            TransactionHook().hook()
+            
         } else {
             freePurchaseButton.setTitle("Bedava Satın Alma: Kapalı", for: .normal)
             freePurchaseButton.backgroundColor = UIColor.red
